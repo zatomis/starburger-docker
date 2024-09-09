@@ -1,0 +1,76 @@
+version: "3"
+services:
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - my_network
+    env_file:
+      - .env
+    restart: always
+
+  nginx:
+    restart: always
+    image: nginx:latest
+    expose:
+      - "80"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static:/webapp/static
+      - media:/webapp/media
+      - ./nginx/:/etc/nginx/conf.d/
+      - /etc/letsencrypt:/etc/letsencrypt
+    networks:
+      - my_network
+    depends_on:
+      - node-web
+      - django-web
+      
+  node-web:
+    build:
+      context: .
+      dockerfile: frontend_node/Dockerfile
+    volumes:
+      - bundles:/webapp/bundles/
+      - static:/webapp/static/
+    networks:
+      - my_network
+    #command: sh -c './node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"'
+
+
+  django-web:
+    restart: always
+    build:
+      context: .
+      dockerfile: backend_django/Dockerfile
+    volumes:
+      - static:/webapp/static/
+      - media:/webapp/media/
+      - bundles:/webapp/bundles/
+#      - static:/static/
+#      - media:/media/
+    networks:
+      - my_network
+
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    expose:
+      - 8000
+    depends_on:
+      - db
+      - node-web
+    command: sh -c "python3 /webapp/manage.py collectstatic --noinput && gunicorn -c gunicorn.py star_burger.wsgi"
+
+networks:
+  my_network:
+
+volumes:
+  db_data:
+  static:
+  media:
+  bundles:

@@ -1,0 +1,40 @@
+version: "3"
+services:
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    restart: always
+
+  django-web:
+    restart: always
+    build:
+      context: .
+      dockerfile: backend_django/Dockerfile
+    volumes:
+      - bundles:/webapp/bundles/
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    expose:
+      - 8000
+    depends_on:
+      - db
+    command: sh -c "export DEBUG=True && 
+      python3 /webapp/manage.py migrate && 
+      python3 /webapp/manage.py runserver 0.0.0.0:8000"
+
+
+  node-web:
+    build:
+      context: .
+      dockerfile: frontend_node/Dockerfile
+    volumes:
+      - bundles:/webapp/bundles/
+
+volumes:
+  db_data:
+  bundles:

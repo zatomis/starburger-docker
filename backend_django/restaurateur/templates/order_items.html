@@ -1,0 +1,55 @@
+{% extends 'base_restaurateur_page.html' %}
+
+{% block title %}Необработанные заказы | Star Burger{% endblock %}
+
+{% block content %}
+  <center>
+    <h2>Необработанные заказы !</h2>
+  </center>
+
+  <hr/>
+  <br/>
+  <br/>
+  <div class="container">
+   <table class="table table-responsive">
+    <tr>
+      <th>№ п/п</th>
+      <th>ID заказа</th>
+      <th>Статус</th>
+      <th>Кол-во позиций</th>
+      <th>Сумма заказа</th>
+      <th>Клиент</th>
+      <th>Телефон</th>
+      <th>🫰</th>
+      <th>Адрес</th>
+      <th>Рестораны</th>
+      <th>Комментарий</th>
+      <th>Ссылка на админку</th>
+      <th>Удаление</th>
+    </tr>
+    {% for item in order_items %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ item.id }}</td>
+        <td>{{ item.status }}</td>
+        <td>{{ item.total_count_position }}</td>
+        <td>{{ item.total_price }} р.</td>
+        <td>{{ item.firstname }} {{ item.lastname }}</td>
+        <td>{{ item.phonenumber }}</td>
+        <td>{{ item.payment }}</td>
+        <td>{{ item.address }}</td>
+        <td>
+          <ul>
+            {% for restaurant in item.available_restaurants %}
+              <li>{{ restaurant.restaurant }} - {{ restaurant.distance }} км.</li>
+            {% endfor %}
+          </ul>
+        </td>
+        <td>{{ item.comment|truncatechars:30 }}</td>
+        <td><a href="{{item.link}}?next={{ request.get_full_path|urlencode}}">Редактировать</a></td>
+        <td><a href="{{item.link_del}}?next={{ request.get_full_path|urlencode}}">❌</a></td>
+      </tr>
+    {% endfor %}
+   </table>
+  </div>
+{% endblock %}
