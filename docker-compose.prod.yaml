@@ -24,7 +24,7 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt
     networks:
       - my_network
-   depends_on:
+    depends_on:
       - node-web
       - django-web
 
