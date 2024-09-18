@@ -1,7 +1,7 @@
 FROM node:16.16.0
 WORKDIR /webapp
 COPY frontend_node/package.json frontend_node/package-lock.json ./
-CMD npm install
+RUN npm install
 COPY frontend_node/bundles-src/ ./bundles-src/
 CMD npm ci --dev
 COPY . ./
